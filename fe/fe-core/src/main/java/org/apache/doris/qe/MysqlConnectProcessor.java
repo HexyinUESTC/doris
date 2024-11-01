@@ -205,16 +205,50 @@ public class MysqlConnectProcessor extends ConnectProcessor {
         // To maintain the original order of replace, sort the entries accordingly.
         List<Map.Entry<PlaceholderId, Expression>> sortedEntries = new ArrayList<>(idExpressionMap.entrySet());
         sortedEntries.sort(Comparator.comparingInt(entry -> entry.getKey().asInt()));
-        for (Map.Entry<PlaceholderId, Expression> entry : sortedEntries) {
-            Expression expr = entry.getValue();
-            String value = "";
-            if (!expr.isNullLiteral()) {
-                value = expr.toString();
+
+        // Preprocess quote states to record whether each character is inside quotes
+        boolean[] inQuotes = preprocessQuotes(origStmt);
+
+        StringBuilder resultSql = new StringBuilder();
+        int lastIndex = 0;
+        int paramIndex = 0;
+
+        for (int i = 0; i < origStmt.length(); i++) {
+            char ch = origStmt.charAt(i);
+            if (ch == '?' && !inQuotes[i]) { // Check if it is a placeholder
+                if (paramIndex < sortedEntries.size()) {
+                    Map.Entry<PlaceholderId, Expression> entry = sortedEntries.get(paramIndex++);
+                    Expression expr = entry.getValue();
+                    String value = expr.isNullLiteral() ? "" : expr.toString();
+
+                    // Append the part before the placeholder and the replacement value
+                    resultSql.append(origStmt, lastIndex, i).append(value);
+                    lastIndex = i + 1;
+                }
             }
-            origStmt = origStmt.replaceFirst("\\?", value);
         }
-        return origStmt;
+        // Append the part after the last placeholder
+        resultSql.append(origStmt.substring(lastIndex));
+
+        return resultSql.toString();
     }
+
+    // Preprocess quote states, returning an array indicating if each position is inside quotes
+    private boolean[] preprocessQuotes(String sql) {
+        boolean[] inQuotes = new boolean[sql.length()];
+        boolean isInQuotes = false;
+
+        for (int i = 0; i < sql.length(); i++) {
+            char ch = sql.charAt(i);
+            if (ch == '"' || ch == '\'') {
+                isInQuotes = !isInQuotes;
+            }
+            inQuotes[i] = isInQuotes;
+        }
+
+        return inQuotes;
+    }
+
 
     // Process COM_QUERY statement,
     private void handleQuery() throws ConnectionException {

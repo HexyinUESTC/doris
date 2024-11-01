@@ -280,7 +280,43 @@ public class AuditEvent {
         }
 
         public AuditEvent build() {
-            return this.auditEvent;
+            AuditEvent copy = new AuditEvent();
+            copy.type = auditEvent.type;
+            copy.timestamp = auditEvent.timestamp;
+            copy.clientIp = auditEvent.clientIp;
+            copy.user = auditEvent.user;
+            copy.ctl = auditEvent.ctl;
+            copy.db = auditEvent.db;
+            copy.commandType = auditEvent.commandType;
+            copy.state = auditEvent.state;
+            copy.errorCode = auditEvent.errorCode;
+            copy.errorMessage = auditEvent.errorMessage;
+            copy.queryTime = auditEvent.queryTime;
+            copy.scanBytes = auditEvent.scanBytes;
+            copy.scanRows = auditEvent.scanRows;
+            copy.returnRows = auditEvent.returnRows;
+            copy.stmtId = auditEvent.stmtId;
+            copy.queryId = auditEvent.queryId;
+            copy.isQuery = auditEvent.isQuery;
+            copy.isNereids = auditEvent.isNereids;
+            copy.feIp = auditEvent.feIp;
+            copy.stmtType = auditEvent.stmtType;
+            copy.stmt = auditEvent.stmt;
+            copy.cpuTimeMs = auditEvent.cpuTimeMs;
+            copy.shuffleSendBytes = auditEvent.shuffleSendBytes;
+            copy.shuffleSendRows = auditEvent.shuffleSendRows;
+            copy.sqlHash = auditEvent.sqlHash;
+            copy.peakMemoryBytes = auditEvent.peakMemoryBytes;
+            copy.sqlDigest = auditEvent.sqlDigest;
+            copy.cloudClusterName = auditEvent.cloudClusterName;
+            copy.traceId = auditEvent.traceId;
+            copy.workloadGroup = auditEvent.workloadGroup;
+            copy.fuzzyVariables = auditEvent.fuzzyVariables;
+            copy.scanBytesFromLocalStorage = auditEvent.scanBytesFromLocalStorage;
+            copy.scanBytesFromRemoteStorage = auditEvent.scanBytesFromRemoteStorage;
+            copy.pushToAuditLogQueueTime = auditEvent.pushToAuditLogQueueTime;
+
+            return copy;
         }
     }
 }
